@@ -322,4 +322,5 @@ LGPL-3
 **GearGuard** is a complete standalone Flask web application for maintenance management. It requires Python 3.10+ and PostgreSQL 18.
 #   H a c k _ G G  
  #   H a c k _ G G  
+ #   H a c k _ G G  
  
