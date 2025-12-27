@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+        .info-box { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; border-left: 4px solid #3b82f6; }
+        .footer { text-align: center; margin-top: 20px; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>New Work Allocation</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{ worker.full_name or worker.username }},</p>
+            <p>You have been assigned a new maintenance request.</p>
+            <div class="info-box">
+                <p><strong>Request Number:</strong> {{ request_obj.name }}</p>
+                <p><strong>Subject:</strong> {{ request_obj.subject }}</p>
+                <p><strong>Equipment:</strong> {{ request_obj.equipment.name if request_obj.equipment else 'N/A' }}</p>
+                <p><strong>Request Type:</strong> {{ request_obj.request_type.title() }}</p>
+                {% if request_obj.scheduled_date %}
+                <p><strong>Scheduled Date:</strong> {{ request_obj.scheduled_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% endif %}
+            </div>
+            <p>Please log in to your GearGuard account to accept or reject this work allocation.</p>
+            <p>Best regards,<br>GearGuard Team</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
+

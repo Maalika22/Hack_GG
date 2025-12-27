@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: {% if status == 'approved' %}#10b981{% else %}#ef4444{% endif %}; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+        .info-box { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; border-left: 4px solid {% if status == 'approved' %}#10b981{% else %}#ef4444{% endif %}; }
+        .footer { text-align: center; margin-top: 20px; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Deadline Response</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{ worker.full_name or worker.username }},</p>
+            <p>Your deadline proposal for request <strong>{{ request_obj.name }}</strong> has been <strong>{{ status }}</strong>.</p>
+            <div class="info-box">
+                {% if request_obj.proposed_deadline %}
+                <p><strong>Proposed Deadline:</strong> {{ request_obj.proposed_deadline.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% endif %}
+                {% if request_obj.deadline_admin_response %}
+                <p><strong>Admin Response:</strong> {{ request_obj.deadline_admin_response }}</p>
+                {% endif %}
+                {% if request_obj.admin_instructions %}
+                <p><strong>Admin Instructions:</strong> {{ request_obj.admin_instructions }}</p>
+                {% endif %}
+            </div>
+            <p>Please log in to view the details and proceed accordingly.</p>
+            <p>Best regards,<br>GearGuard Team</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,78 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Workers Management{% endblock %}
+{% block page_subtitle %}Manage employees and workers{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{{ url_for('admin_worker_new') }}" class="btn btn-admin-primary">
+            <i class="bi bi-plus-circle"></i> New Worker
+        </a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="mb-0">Workers</h5>
+    </div>
+    <div class="admin-card-body">
+        {% if workers %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Employee ID</th>
+                        <th>Department</th>
+                        <th>Company</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for worker in workers %}
+                    <tr>
+                        <td><strong>{{ worker.full_name or worker.username }}</strong></td>
+                        <td>{{ worker.email }}</td>
+                        <td>{{ worker.position or '-' }}</td>
+                        <td>{{ worker.employee_id or '-' }}</td>
+                        <td>{{ worker.department.name if worker.department else '-' }}</td>
+                        <td>{{ worker.company.name if worker.company else '-' }}</td>
+                        <td>{{ worker.phone or '-' }}</td>
+                        <td>
+                            {% if worker.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin_worker_edit', id=worker.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-people" style="font-size: 3rem;"></i>
+            <p class="mt-3">No workers found. Create your first worker!</p>
+            <a href="{{ url_for('admin_worker_new') }}" class="btn btn-admin-primary mt-2">
+                <i class="bi bi-plus-circle"></i> Create Worker
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

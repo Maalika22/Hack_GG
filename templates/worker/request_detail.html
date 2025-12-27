@@ -1,0 +1,120 @@
+{% extends "base_user.html" %}
+
+{% block title %}Request {{ request_obj.name }} - GearGuard{% endblock %}
+
+{% block content %}
+<div class="user-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">{{ request_obj.name }} - {{ request_obj.subject }}</h3>
+            <span class="badge bg-{{ 'warning' if request_obj.allocation_status == 'allocated' else 'info' if request_obj.allocation_status == 'accepted' else 'primary' if request_obj.allocation_status == 'in_progress' else 'success' }}">
+                {{ request_obj.allocation_status.replace('_', ' ').title() }}
+            </span>
+        </div>
+        <a href="{{ url_for('worker_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Request Details</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Equipment:</strong> {{ request_obj.equipment.name if request_obj.equipment else '-' }}</p>
+                    <p><strong>Category:</strong> {{ request_obj.category.name if request_obj.category else '-' }}</p>
+                    <p><strong>Team:</strong> {{ request_obj.team.name if request_obj.team else '-' }}</p>
+                    <p><strong>Type:</strong> {{ request_obj.request_type.title() }}</p>
+                    <p><strong>Allocated At:</strong> {{ request_obj.allocated_at.strftime('%Y-%m-%d %H:%M') if request_obj.allocated_at else '-' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Deadline & Instructions</h6>
+                </div>
+                <div class="card-body">
+                    {% if request_obj.proposed_deadline %}
+                    <p><strong>Proposed Deadline:</strong> {{ request_obj.proposed_deadline.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Deadline Status:</strong> 
+                        <span class="badge bg-{{ 'success' if request_obj.deadline_status == 'approved' else 'danger' if request_obj.deadline_status == 'rejected' else 'warning' }}">
+                            {{ request_obj.deadline_status.title() if request_obj.deadline_status else 'Pending' }}
+                        </span>
+                    </p>
+                    {% endif %}
+                    {% if request_obj.admin_instructions %}
+                    <p><strong>Admin Instructions:</strong></p>
+                    <div class="alert alert-info">{{ request_obj.admin_instructions }}</div>
+                    {% endif %}
+                    {% if request_obj.deadline_admin_response %}
+                    <p><strong>Admin Response:</strong> {{ request_obj.deadline_admin_response }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if request_obj.allocation_status == 'allocated' %}
+    <div class="card mb-3">
+        <div class="card-header bg-warning">
+            <h6 class="mb-0">Respond to Work Allocation</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('worker_respond_request', id=request_obj.id) }}">
+                <div class="mb-3">
+                    <label class="form-label">Response</label>
+                    <div>
+                        <input type="radio" name="response" value="accept" id="accept" checked onchange="toggleDeadline()">
+                        <label for="accept" class="ms-2">Accept</label>
+                        <input type="radio" name="response" value="reject" id="reject" class="ms-4" onchange="toggleDeadline()">
+                        <label for="reject" class="ms-2">Reject</label>
+                    </div>
+                </div>
+                <div class="mb-3" id="deadlineSection">
+                    <label for="proposed_deadline" class="form-label">Proposed Deadline (Optional)</label>
+                    <input type="datetime-local" class="form-control" id="proposed_deadline" name="proposed_deadline">
+                    <small class="form-text text-muted">If you accept, you can propose a deadline for admin approval</small>
+                </div>
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason/Comments</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Response</button>
+            </form>
+        </div>
+    </div>
+    {% elif request_obj.allocation_status == 'accepted' or request_obj.allocation_status == 'in_progress' %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">Update Status</h6>
+        </div>
+        <div class="card-body">
+            {% if request_obj.allocation_status == 'accepted' %}
+            <form method="POST" action="{{ url_for('worker_update_status', id=request_obj.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="in_progress">
+                <button type="submit" class="btn btn-primary">Start Work</button>
+            </form>
+            {% endif %}
+            {% if request_obj.allocation_status == 'in_progress' %}
+            <form method="POST" action="{{ url_for('worker_update_status', id=request_obj.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="completed">
+                <button type="submit" class="btn btn-success">Mark as Completed</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleDeadline() {
+    const acceptRadio = document.getElementById('accept');
+    const deadlineSection = document.getElementById('deadlineSection');
+    deadlineSection.style.display = acceptRadio.checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}
+

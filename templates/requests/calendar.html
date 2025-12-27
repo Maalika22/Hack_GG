@@ -1,0 +1,118 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Preventive Maintenance Calendar{% endblock %}
+{% block page_subtitle %}View and schedule preventive maintenance requests{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        <a href="{{ url_for('admin_requests') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-kanban"></i> Kanban View
+        </a>
+    </div>
+    <a href="{{ url_for('request_new') }}" class="btn btn-admin-primary">
+        <i class="bi bi-plus-circle"></i> New Request
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-calendar3"></i> Preventive Maintenance Calendar</h5>
+    </div>
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<style>
+    #calendar {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .fc-event {
+        cursor: pointer;
+        border-radius: 6px;
+    }
+    
+    .fc-event-title {
+        font-weight: 500;
+    }
+    
+    .fc-toolbar-title {
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .fc-button-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .fc-button-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+    
+    .fc-daygrid-event {
+        border-radius: 6px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    
+    // Prepare events from server data
+    var events = [
+        {% for req in requests %}
+        {
+            id: {{ req.id }},
+            title: '{{ req.subject }} - {{ req.equipment.name }}',
+            start: '{{ req.scheduled_date.strftime("%Y-%m-%dT%H:%M:%S") if req.scheduled_date else "" }}',
+            url: '{{ url_for("request_detail", id=req.id) }}',
+            backgroundColor: '{% if req.stage == "new" %}#3b82f6{% elif req.stage == "in_progress" %}#f59e0b{% elif req.stage == "repaired" %}#10b981{% else %}#64748b{% endif %}',
+            borderColor: '{% if req.stage == "new" %}#3b82f6{% elif req.stage == "in_progress" %}#f59e0b{% elif req.stage == "repaired" %}#10b981{% else %}#64748b{% endif %}',
+            textColor: '#ffffff'
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: events,
+        eventClick: function(info) {
+            if (info.event.url) {
+                window.location.href = info.event.url;
+                return false;
+            }
+        },
+        dateClick: function(info) {
+            // Create new request on date click
+            var dateStr = info.dateStr;
+            window.location.href = '{{ url_for("request_new") }}?scheduled_date=' + dateStr;
+        },
+        editable: false,
+        selectable: true,
+        selectMirror: true,
+        dayMaxEvents: true,
+        weekends: true,
+        firstDay: 1, // Monday
+        height: 'auto',
+        eventDisplay: 'block',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: 'short'
+        }
+    });
+    
+    calendar.render();
+});
+</script>
+{% endblock %}

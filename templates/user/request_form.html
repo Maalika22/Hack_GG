@@ -1,0 +1,53 @@
+{% extends "base_user.html" %}
+
+{% block title %}New Maintenance Request - GearGuard{% endblock %}
+
+{% block content %}
+<div class="user-card">
+    <h3 class="mb-4">Create Maintenance Request</h3>
+    
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Subject *</label>
+                    <input type="text" class="form-control" id="subject" name="subject" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="request_type" class="form-label">Request Type *</label>
+                    <select class="form-select" id="request_type" name="request_type" required>
+                        <option value="corrective">Corrective (Breakdown)</option>
+                        <option value="preventive">Preventive (Routine Checkup)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="equipment_id" class="form-label">Equipment *</label>
+            <select class="form-select" id="equipment_id" name="equipment_id" required>
+                <option value="">Select Equipment</option>
+                {% for eq in equipment %}
+                <option value="{{ eq.id }}" {{ 'selected' if selected_equipment and selected_equipment.id == eq.id }}>
+                    {{ eq.name }} {% if eq.serial_number %}- {{ eq.serial_number }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="scheduled_date" class="form-label">Scheduled Date (for preventive maintenance)</label>
+            <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date">
+            <small class="form-text text-muted">Leave empty for immediate corrective maintenance</small>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-user-primary">Create Request</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

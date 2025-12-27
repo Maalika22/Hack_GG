@@ -1,0 +1,234 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Maintenance Requests{% endblock %}
+{% block page_subtitle %}Manage all maintenance requests{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{{ url_for('request_new') }}" class="btn btn-admin-primary">
+            <i class="bi bi-plus-circle"></i> New Request
+        </a>
+        <a href="{{ url_for('request_calendar') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-calendar"></i> Calendar View
+        </a>
+    </div>
+    <!-- Search Bar - Right Side -->
+    <form method="GET" action="{{ url_for('admin_requests') }}" class="d-flex gap-2">
+        <div class="input-group" style="max-width: 350px;">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ search_query or '' }}">
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+            {% if search_query %}
+            <a href="{{ url_for('admin_requests') }}" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>New</span>
+                    <span class="badge bg-info rounded-pill">{{ requests_by_stage.new|length }}</span>
+                </h5>
+            </div>
+            <div class="admin-card-body" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                {% for req in requests_by_stage.new %}
+                <div class="card mb-2 {% if req.is_overdue %}border-danger{% endif %}">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                            </h6>
+                            {% if req.is_overdue %}
+                            <span class="badge bg-danger rounded-pill">Overdue</span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                        {% if req.assigned_user %}
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.assigned_user.full_name or req.assigned_user.username }}</small>
+                        </div>
+                        {% endif %}
+                        {% if req.allocation_status == 'pending' or not req.allocated_to_id %}
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#allocateModal{{ req.id }}">
+                                <i class="bi bi-person-plus"></i> Allocate
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.new|length == 0 %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">No new requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>In Progress</span>
+                    <span class="badge bg-warning rounded-pill">{{ requests_by_stage.in_progress|length }}</span>
+                </h5>
+            </div>
+            <div class="admin-card-body" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                {% for req in requests_by_stage.in_progress %}
+                <div class="card mb-2 {% if req.is_overdue %}border-danger{% endif %}">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <a href="{{ url_for('request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                            </h6>
+                            {% if req.is_overdue %}
+                            <span class="badge bg-danger rounded-pill">Overdue</span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                        {% if req.technician %}
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-workspace me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.technician.full_name or req.technician.username }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.in_progress|length == 0 %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">No in-progress requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Repaired</span>
+                    <span class="badge bg-success rounded-pill">{{ requests_by_stage.repaired|length }}</span>
+                </h5>
+            </div>
+            <div class="admin-card-body" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                {% for req in requests_by_stage.repaired %}
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                        {% if req.duration %}
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.duration }} hours</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.repaired|length == 0 %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">No repaired requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Scrap</span>
+                    <span class="badge bg-secondary rounded-pill">{{ requests_by_stage.scrap|length }}</span>
+                </h5>
+            </div>
+            <div class="admin-card-body" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                {% for req in requests_by_stage.scrap %}
+                <div class="card mb-2 border-secondary">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.scrap|length == 0 %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-trash" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">No scrapped requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allocation Modals -->
+{% for req in requests_by_stage.new %}
+{% if req.allocation_status == 'pending' or not req.allocated_to_id %}
+<div class="modal fade" id="allocateModal{{ req.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Allocate Work to Worker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin_allocate_request', id=req.id) }}">
+                <div class="modal-body">
+                    <p><strong>Request:</strong> {{ req.name }} - {{ req.subject }}</p>
+                    <div class="mb-3">
+                        <label for="worker_id" class="form-label">Select Worker</label>
+                        <select class="form-select" id="worker_id" name="worker_id" required>
+                            <option value="">Select a worker...</option>
+                            {% for worker in workers %}
+                            {% if not worker.is_admin and worker.is_active %}
+                            <option value="{{ worker.id }}">{{ worker.full_name or worker.username }} - {{ worker.position or 'Worker' }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Allocate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
+

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #8b5cf6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+        .info-box { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; border-left: 4px solid #8b5cf6; }
+        .footer { text-align: center; margin-top: 20px; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Product Update Notification</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{ third_party_user.full_name or third_party_user.username }},</p>
+            <p>You are receiving this notification regarding a product update:</p>
+            <div class="info-box">
+                <p><strong>Equipment:</strong> {{ equipment.name }}</p>
+                <p><strong>Serial Number:</strong> {{ equipment.serial_number or 'N/A' }}</p>
+                <p><strong>Location:</strong> {{ equipment.location or 'N/A' }}</p>
+            </div>
+            <div class="info-box">
+                <p><strong>Message:</strong></p>
+                <p>{{ message }}</p>
+            </div>
+            <p>Best regards,<br>GearGuard Team</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>
+

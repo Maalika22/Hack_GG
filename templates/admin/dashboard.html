@@ -1,0 +1,163 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}System Overview & Statistics{% endblock %}
+
+{% block content %}
+<!-- KPI Cards from Design -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stat-card-admin danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Critical Equipment</h5>
+                    <h2 class="mb-0">{{ stats.critical_equipment }} Units</h2>
+                    <small class="text-muted">Health &lt; 30%</small>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-danger); opacity: 0.2;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Managers identify assets that need immediate maintenance or major overhaul.</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card-admin" style="border-left-color: #3b82f6;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Technician Load</h5>
+                    <h2 class="mb-0" style="color: #3b82f6;">{{ stats.technician_load }}%</h2>
+                    <small class="text-muted">Utilized</small>
+                </div>
+                <div style="font-size: 2.5rem; color: #3b82f6; opacity: 0.2;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Workforce utilization percentage. Assign carefully if &gt; 85%</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card-admin success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Open Requests</h5>
+                    <h2 class="mb-0">{{ stats.open_requests }} Pending</h2>
+                    <small class="text-danger">{{ stats.overdue_requests }} Overdue</small>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-success); opacity: 0.2;">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Display the states where requests are in.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="stat-card-admin">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Workers</h5>
+                    <h2 class="mb-0">{{ stats.total_workers }}</h2>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-primary); opacity: 0.2;">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card-admin">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Teams</h5>
+                    <h2 class="mb-0">{{ stats.total_teams }}</h2>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-primary); opacity: 0.2;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card-admin">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Categories</h5>
+                    <h2 class="mb-0">{{ stats.total_categories }}</h2>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-primary); opacity: 0.2;">
+                    <i class="bi bi-tags"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card-admin">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="text-muted mb-2" style="font-size: 0.9rem; font-weight: 500;">Departments</h5>
+                    <h2 class="mb-0">{{ stats.total_departments }}</h2>
+                </div>
+                <div style="font-size: 2.5rem; color: var(--admin-primary); opacity: 0.2;">
+                    <i class="bi bi-building"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Table from Design -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="mb-0"><i class="bi bi-activity"></i> Maintenance Activity</h5>
+    </div>
+    <div class="admin-card-body">
+        {% if recent_requests %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Subjects</th>
+                        <th>Employee</th>
+                        <th>Technician</th>
+                        <th>Category</th>
+                        <th>Stage</th>
+                        <th>Company</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in recent_requests %}
+                    <tr>
+                        <td><a href="{{ url_for('request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.subject }}</a></td>
+                        <td>{{ req.assigned_user.full_name if req.assigned_user else '-' }}</td>
+                        <td>{{ req.technician.full_name if req.technician else '-' }}</td>
+                        <td>{{ req.category.name if req.category else '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if req.stage == 'repaired' else 'warning' if req.stage == 'in_progress' else 'info' if req.stage == 'new' else 'secondary' }}">
+                                {{ req.stage.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>{{ req.equipment.company.name if req.equipment and req.equipment.company else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <p class="mt-3">No maintenance requests yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,137 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ 'Edit' if worker else 'New' }} Worker{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="mb-0">{{ 'Edit' if worker else 'New' }} Worker</h5>
+    </div>
+    <div class="admin-card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" 
+                               value="{{ worker.full_name if worker else '' }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ worker.email if worker else '' }}" required>
+                    </div>
+                </div>
+            </div>
+            
+            {% if not worker %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username *</label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               value="{{ worker.username if worker else '' }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password *</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               {{ 'placeholder="Leave blank to keep current password"' if worker else 'required' }}>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" 
+                       placeholder="Leave blank to keep current password">
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               value="{{ worker.phone if worker else '' }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="position" class="form-label">Position</label>
+                        <input type="text" class="form-control" id="position" name="position"
+                               value="{{ worker.position if worker else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="employee_id" class="form-label">Employee ID</label>
+                        <input type="text" class="form-control" id="employee_id" name="employee_id"
+                               value="{{ worker.employee_id if worker else '' }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="hire_date" class="form-label">Hire Date</label>
+                        <input type="date" class="form-control" id="hire_date" name="hire_date"
+                               value="{{ worker.hire_date.strftime('%Y-%m-%d') if worker and worker.hire_date else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="department_id" class="form-label">Department</label>
+                        <select class="form-select" id="department_id" name="department_id">
+                            <option value="">Select Department</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}" {{ 'selected' if worker and worker.department_id == dept.id }}>
+                                {{ dept.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="company_id" class="form-label">Company</label>
+                        <select class="form-select" id="company_id" name="company_id">
+                            <option value="">Select Company</option>
+                            {% for company in companies %}
+                            <option value="{{ company.id }}" {{ 'selected' if worker and worker.company_id == company.id }}>
+                                {{ company.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            {% if worker %}
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {{ 'checked' if worker.is_active }}>
+                    <label class="form-check-label" for="is_active">
+                        Active
+                    </label>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('admin_workers') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-admin-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

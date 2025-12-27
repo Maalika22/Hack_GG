@@ -1,0 +1,158 @@
+{% extends "base_user.html" %}
+
+{% block title %}My Requests - GearGuard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>My Maintenance Requests</h3>
+    <div class="d-flex gap-2 align-items-center">
+        <!-- Search Bar - Right Side -->
+        <form method="GET" action="{{ url_for('user_requests') }}" class="d-flex gap-2">
+            <div class="input-group" style="max-width: 350px;">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ search_query or '' }}">
+                <button type="submit" class="btn btn-outline-secondary">Search</button>
+                {% if search_query %}
+                <a href="{{ url_for('user_requests') }}" class="btn btn-outline-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+        <a href="{{ url_for('user_request_new') }}" class="btn btn-user-primary">
+            <i class="bi bi-plus-circle"></i> New Request
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="user-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>New</span>
+                    <span class="badge bg-light text-dark rounded-pill">{{ requests_by_stage.new|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
+                {% for req in requests_by_stage.new %}
+                <div class="card mb-2 {% if req.is_overdue %}border-danger{% endif %}">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('user_request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                        {% if req.is_overdue %}
+                        <span class="badge bg-danger mt-2">Overdue</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.new|length == 0 %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0 small">No new requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="user-card">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>In Progress</span>
+                    <span class="badge bg-light text-dark rounded-pill">{{ requests_by_stage.in_progress|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
+                {% for req in requests_by_stage.in_progress %}
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('user_request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-gear me-2 text-muted"></i>
+                            <small class="text-muted">{{ req.equipment.name if req.equipment else '-' }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.in_progress|length == 0 %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0 small">No in-progress requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="user-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Repaired</span>
+                    <span class="badge bg-light text-dark rounded-pill">{{ requests_by_stage.repaired|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
+                {% for req in requests_by_stage.repaired %}
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('user_request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                        {% if req.duration %}
+                        <small class="text-muted"><i class="bi bi-clock"></i> {{ req.duration }} hours</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.repaired|length == 0 %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0 small">No completed requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="user-card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Scrap</span>
+                    <span class="badge bg-light text-dark rounded-pill">{{ requests_by_stage.scrap|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 300px; max-height: 500px; overflow-y: auto;">
+                {% for req in requests_by_stage.scrap %}
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <h6 class="mb-2">
+                            <a href="{{ url_for('user_request_detail', id=req.id) }}" class="text-decoration-none fw-semibold">{{ req.name }}</a>
+                        </h6>
+                        <p class="mb-2 text-dark small">{{ req.subject }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if requests_by_stage.scrap|length == 0 %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-trash" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0 small">No scrapped requests</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

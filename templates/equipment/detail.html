@@ -1,0 +1,122 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ equipment.name }}{% endblock %}
+{% block page_subtitle %}Equipment Details & Maintenance History{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h5>{{ equipment.name }}</h5>
+                <div>
+                    <span class="badge bg-{{ 'danger' if equipment.scrap else 'success' }}">
+                        {{ 'Scrap' if equipment.scrap else 'Active' }}
+                    </span>
+                    <a href="{{ url_for('equipment_edit', id=equipment.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Serial Number:</strong> {{ equipment.serial_number or '-' }}</p>
+                        <p><strong>Category:</strong> {{ equipment.category.name if equipment.category else '-' }}</p>
+                        <p><strong>Company:</strong> {{ equipment.company.name if equipment.company else '-' }}</p>
+                        <p><strong>Location:</strong> {{ equipment.location or '-' }}</p>
+                        <p><strong>Used in Location:</strong> {{ equipment.used_in_location or '-' }}</p>
+                        <p><strong>Work Center:</strong> {{ equipment.work_center.name if equipment.work_center else '-' }}</p>
+                        <p><strong>Purchase Date:</strong> {{ equipment.purchase_date.strftime('%Y-%m-%d') if equipment.purchase_date else '-' }}</p>
+                        <p><strong>Assigned Date:</strong> {{ equipment.assigned_date.strftime('%Y-%m-%d') if equipment.assigned_date else '-' }}</p>
+                        {% if equipment.scrap_date %}
+                        <p><strong>Scrap Date:</strong> {{ equipment.scrap_date.strftime('%Y-%m-%d') }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Team:</strong> {{ equipment.team.name }}</p>
+                        <p><strong>Technician:</strong> {{ equipment.default_technician.full_name if equipment.default_technician else '-' }}</p>
+                        <p><strong>Owner/Employee:</strong> {{ equipment.owner.full_name if equipment.owner else '-' }}</p>
+                        <p><strong>Department:</strong> {{ equipment.department.name if equipment.department else '-' }}</p>
+                    </div>
+                </div>
+                
+                {% if equipment.warranty_information %}
+                <div class="mt-3">
+                    <strong>Warranty Information:</strong>
+                    <p>{{ equipment.warranty_information }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('request_list') }}?equipment_id={{ equipment.id }}" class="btn btn-info">
+                        <i class="bi bi-tools"></i> Maintenance 
+                        <span class="badge bg-light text-dark">{{ equipment.open_maintenance_count }}</span>
+                    </a>
+                    <small class="text-muted ms-2">Clicking this button opens a list of all requests related only to this specific machine.</small>
+                </div>
+                
+                {% if equipment.description %}
+                <div class="mt-3">
+                    <strong>Description:</strong>
+                    <p>{{ equipment.description }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <strong>Health Status:</strong>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="progress" style="width: 200px; height: 20px; margin-right: 10px;">
+                            <div class="progress-bar bg-{{ 'danger' if equipment.health_percentage < 30 else 'warning' if equipment.health_percentage < 60 else 'success' }}" 
+                                 role="progressbar" 
+                                 style="width: {{ equipment.health_percentage }}%">
+                                {{ equipment.health_percentage }}%
+                            </div>
+                        </div>
+                        {% if equipment.is_critical %}
+                        <span class="badge bg-danger">Critical</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Maintenance Requests 
+                    <span class="badge bg-info">{{ equipment.maintenance_count }}</span>
+                    <span class="badge bg-warning">Open: {{ equipment.open_maintenance_count }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Request #</th>
+                            <th>Subject</th>
+                            <th>Stage</th>
+                            <th>Type</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in equipment.requests %}
+                        <tr>
+                            <td><a href="{{ url_for('request_detail', id=req.id) }}">{{ req.name }}</a></td>
+                            <td>{{ req.subject }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if req.stage == 'repaired' else 'warning' if req.stage == 'in_progress' else 'info' if req.stage == 'new' else 'secondary' }}">
+                                    {{ req.stage.replace('_', ' ').title() }}
+                                </span>
+                            </td>
+                            <td>{{ req.request_type.title() }}</td>
+                            <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

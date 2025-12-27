@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GearGuard - Maintenance Requests{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            /* User-friendly Color Palette */
+            --user-primary: #3b82f6;
+            --user-primary-dark: #2563eb;
+            --user-primary-light: #60a5fa;
+            --user-success: #10b981;
+            --user-warning: #f59e0b;
+            --user-danger: #ef4444;
+            --user-info: #06b6d4;
+            
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            color: var(--text-primary);
+        }
+        
+        .user-navbar {
+            background: white;
+            box-shadow: var(--shadow-md);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+        }
+        
+        .user-navbar .brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--user-primary);
+        }
+        
+        .user-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .btn-user-primary {
+            background: var(--user-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-user-primary:hover {
+            background: var(--user-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-content">
+        <nav class="user-navbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-4">
+                <div class="brand">
+                    <i class="bi bi-shield-check"></i> GearGuard
+                </div>
+                <div class="d-flex gap-2">
+                    {% if current_user.is_worker %}
+                    <a href="{{ url_for('worker_dashboard') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-briefcase"></i> Work Dashboard
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('user_dashboard') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('user_requests') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-clipboard-check"></i> My Requests
+                    </a>
+                    <a href="{{ url_for('user_equipment') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-gear"></i> Equipment
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-person"></i> Profile
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted">{{ current_user.full_name or current_user.username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </nav>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+

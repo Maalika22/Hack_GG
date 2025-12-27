@@ -1,0 +1,67 @@
+{% extends "base_user.html" %}
+
+{% block title %}Request {{ request_obj.name }} - GearGuard{% endblock %}
+
+{% block content %}
+<div class="user-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">{{ request_obj.name }} - {{ request_obj.subject }}</h3>
+            <span class="badge bg-{{ 'success' if request_obj.stage == 'repaired' else 'warning' if request_obj.stage == 'in_progress' else 'info' if request_obj.stage == 'new' else 'secondary' }}">
+                {{ request_obj.stage.replace('_', ' ').title() }}
+            </span>
+            {% if request_obj.is_overdue %}
+            <span class="badge bg-danger ms-2">Overdue</span>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('user_requests') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Requests
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Request Details</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Equipment:</strong> {{ request_obj.equipment.name if request_obj.equipment else '-' }}</p>
+                    <p><strong>Category:</strong> {{ request_obj.category.name if request_obj.category else '-' }}</p>
+                    <p><strong>Team:</strong> {{ request_obj.team.name if request_obj.team else '-' }}</p>
+                    <p><strong>Type:</strong> {{ request_obj.request_type.title() }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Assignment & Schedule</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Assigned User:</strong> {{ request_obj.assigned_user.full_name if request_obj.assigned_user else 'Unassigned' }}</p>
+                    <p><strong>Technician:</strong> {{ request_obj.technician.full_name if request_obj.technician else 'Unassigned' }}</p>
+                    {% if request_obj.scheduled_date %}
+                    <p><strong>Scheduled:</strong> {{ request_obj.scheduled_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% endif %}
+                    {% if request_obj.duration %}
+                    <p><strong>Duration:</strong> {{ request_obj.duration }} hours</p>
+                    {% endif %}
+                    <p><strong>Created:</strong> {{ request_obj.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if request_obj.stage == 'repaired' %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> This request has been completed.
+    </div>
+    {% elif request_obj.stage == 'scrap' %}
+    <div class="alert alert-secondary">
+        <i class="bi bi-exclamation-triangle"></i> This request has been marked as scrap.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

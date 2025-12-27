@@ -1,0 +1,128 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ 'Edit' if company else 'New' }} Company{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="mb-0">{{ 'Edit' if company else 'New' }} Company</h5>
+    </div>
+    <div class="admin-card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Company Name *</label>
+                <input type="text" class="form-control" id="name" name="name" 
+                       value="{{ company.name if company else '' }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address" rows="3">{{ company.address if company else '' }}</textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               value="{{ company.phone if company else '' }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               value="{{ company.email if company else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            <h5 class="mb-3">Email Configuration (for sending OTP and notifications)</h5>
+            <p class="text-muted small mb-3">Configure email settings to send OTP and notifications from this company's email address.</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="smtp_server" class="form-label">SMTP Server</label>
+                        <input type="text" class="form-control" id="smtp_server" name="smtp_server"
+                               value="{{ company.smtp_server if company else 'smtp.gmail.com' }}"
+                               placeholder="smtp.gmail.com">
+                        <small class="form-text text-muted">Gmail: smtp.gmail.com, Outlook: smtp-mail.outlook.com</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="smtp_port" class="form-label">SMTP Port</label>
+                        <input type="number" class="form-control" id="smtp_port" name="smtp_port"
+                               value="{{ company.smtp_port if company else '587' }}"
+                               placeholder="587">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="smtp_username" class="form-label">SMTP Username (Email)</label>
+                        <input type="email" class="form-control" id="smtp_username" name="smtp_username"
+                               value="{{ company.smtp_username if company else '' }}"
+                               placeholder="company-email@gmail.com">
+                        <small class="form-text text-muted">For Gmail, use App Password</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="smtp_password" class="form-label">SMTP Password</label>
+                        <input type="password" class="form-control" id="smtp_password" name="smtp_password"
+                               value="{{ company.smtp_password if company else '' }}"
+                               placeholder="App Password for Gmail">
+                        <small class="form-text text-muted">For Gmail: Use App Password (not regular password)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="smtp_sender_name" class="form-label">Sender Name</label>
+                        <input type="text" class="form-control" id="smtp_sender_name" name="smtp_sender_name"
+                               value="{{ company.smtp_sender_name if company else (company.name if company else '') }}"
+                               placeholder="{{ company.name if company else 'Company Name' }}">
+                        <small class="form-text text-muted">Name shown in email "From" field</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="smtp_use_tls" name="smtp_use_tls"
+                                   {{ 'checked' if company and company.smtp_use_tls else '' }}>
+                            <label class="form-check-label" for="smtp_use_tls">
+                                Use TLS (Recommended)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="smtp_use_ssl" name="smtp_use_ssl"
+                                   {{ 'checked' if company and company.smtp_use_ssl else '' }}>
+                            <label class="form-check-label" for="smtp_use_ssl">
+                                Use SSL
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> <strong>Note:</strong> OTP and notification emails will be sent from this company's email address to users/workers belonging to this company.
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('admin_companies') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-admin-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

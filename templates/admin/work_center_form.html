@@ -1,0 +1,95 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ 'Edit' if work_center else 'New' }} Work Center{% endblock %}
+{% block page_subtitle %}{{ 'Modify work center details' if work_center else 'Create a new work center' }}{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="mb-0">{{ 'Edit' if work_center else 'New' }} Work Center</h5>
+    </div>
+    <div class="admin-card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Work Center Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ work_center.name if work_center else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="code" class="form-label">Code</label>
+                        <input type="text" class="form-control" id="code" name="code" 
+                               value="{{ work_center.code if work_center else '' }}" 
+                               placeholder="e.g., WC001">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tag" class="form-label">Tag</label>
+                        <input type="text" class="form-control" id="tag" name="tag" 
+                               value="{{ work_center.tag if work_center else '' }}" 
+                               placeholder="e.g., Production, Assembly, Testing">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="alternative_work_centers" class="form-label">Alternative Work Centers</label>
+                        <input type="text" class="form-control" id="alternative_work_centers" name="alternative_work_centers" 
+                               value="{{ work_center.alternative_work_centers if work_center else '' }}" 
+                               placeholder="Comma-separated work center codes">
+                        <small class="text-muted">Enter alternative work center codes separated by commas</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="company_id" class="form-label">Company</label>
+                        <select class="form-select" id="company_id" name="company_id">
+                            <option value="">Select Company</option>
+                            {% for company in companies %}
+                            <option value="{{ company.id }}" {{ 'selected' if work_center and work_center.company_id == company.id }}>
+                                {{ company.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="cost_per_hour" class="form-label">Cost per Hour</label>
+                        <input type="number" step="0.01" class="form-control" id="cost_per_hour" name="cost_per_hour" 
+                               value="{{ work_center.cost_per_hour if work_center and work_center.cost_per_hour else '1.00' }}" 
+                               placeholder="1.00">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="capacity_time_efficiency" class="form-label">Capacity Time Efficiency (%)</label>
+                        <input type="number" step="0.01" class="form-control" id="capacity_time_efficiency" name="capacity_time_efficiency" 
+                               value="{{ work_center.capacity_time_efficiency if work_center and work_center.capacity_time_efficiency else '100.00' }}" 
+                               placeholder="100.00" min="0" max="100">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="oee_target" class="form-label">OEE Target (%)</label>
+                        <input type="number" step="0.01" class="form-control" id="oee_target" name="oee_target" 
+                               value="{{ work_center.oee_target if work_center and work_center.oee_target else '' }}" 
+                               placeholder="e.g., 85.00" min="0" max="100">
+                        <small class="text-muted">Overall Equipment Effectiveness Target</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ work_center.description if work_center else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-admin-primary">
+                    <i class="bi bi-save"></i> Save Work Center
+                </button>
+                <a href="{{ url_for('admin_work_centers') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

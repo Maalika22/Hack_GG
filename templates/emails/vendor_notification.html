@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+        }
+        .message-box {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #1e40af;
+        }
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            border-radius: 0 0 10px 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1e40af;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GearGuard - Vendor Notification</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ vendor.full_name or vendor.username }},</p>
+        
+        <p>We hope this message finds you well. We would like to share the following information with you:</p>
+        
+        <div class="message-box">
+            {% for line in message.split('\n') %}
+                {{ line }}<br>
+            {% endfor %}
+        </div>
+        
+        <p>If you have any questions or need further information, please don't hesitate to contact us.</p>
+        
+        <p>Best regards,<br>
+        <strong>{% if admin_user %}{{ admin_user.full_name or admin_user.username }}{% else %}GearGuard Administration{% endif %}</strong><br>
+        GearGuard Administration</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message from GearGuard Maintenance Management System.</p>
+        <p>&copy; 2024 GearGuard. All rights reserved.</p>
+    </div>
+</body>
+</html>
+

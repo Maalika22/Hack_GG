@@ -1,0 +1,18 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ team.name }}{% endblock %}
+{% block page_subtitle %}Team Details & Statistics{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h5>{{ team.name }}</h5>
+        <p><strong>Members:</strong> {{ team.member_count }}</p>
+        <p><strong>Equipment Count:</strong> {{ team.equipment_count }}</p>
+        <p><strong>Total Requests:</strong> {{ team.request_count }}</p>
+        <p><strong>Open Requests:</strong> {{ team.open_request_count }}</p>
+    </div>
+</div>
+{% endblock %}
+
+

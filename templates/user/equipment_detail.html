@@ -1,0 +1,154 @@
+{% extends "base_user.html" %}
+
+{% block title %}{{ equipment.name }} - GearGuard{% endblock %}
+
+{% block content %}
+<div class="user-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">{{ equipment.name }}</h3>
+            <span class="badge bg-{{ 'danger' if equipment.scrap else 'success' }}">
+                {{ 'Scrap' if equipment.scrap else 'Active' }}
+            </span>
+        </div>
+        <a href="{{ url_for('user_equipment') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Equipment
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Equipment Information</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Serial Number:</strong> {{ equipment.serial_number or '-' }}</p>
+                    <p><strong>Category:</strong> {{ equipment.category.name if equipment.category else '-' }}</p>
+                    <p><strong>Company:</strong> {{ equipment.company.name if equipment.company else '-' }}</p>
+                    <p><strong>Location:</strong> {{ equipment.location or '-' }}</p>
+                    <p><strong>Used in Location:</strong> {{ equipment.used_in_location or '-' }}</p>
+                    <p><strong>Work Center:</strong> {{ equipment.work_center.name if equipment.work_center else '-' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Assignment & Team</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Team:</strong> {{ equipment.team.name if equipment.team else '-' }}</p>
+                    <p><strong>Technician:</strong> {{ equipment.default_technician.full_name if equipment.default_technician else '-' }}</p>
+                    <p><strong>Owner/Employee:</strong> {{ equipment.owner.full_name if equipment.owner else '-' }}</p>
+                    <p><strong>Department:</strong> {{ equipment.department.name if equipment.department else '-' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">Health Status</h6>
+        </div>
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="progress" style="width: 200px; height: 25px; margin-right: 15px;">
+                    <div class="progress-bar bg-{{ 'danger' if equipment.health_percentage < 30 else 'warning' if equipment.health_percentage < 60 else 'success' }}" 
+                         role="progressbar" 
+                         style="width: {{ equipment.health_percentage }}%">
+                        {{ equipment.health_percentage }}%
+                    </div>
+                </div>
+                {% if equipment.is_critical %}
+                <span class="badge bg-danger">Critical - Needs Immediate Attention</span>
+                {% elif equipment.health_percentage < 60 %}
+                <span class="badge bg-warning">Warning - Maintenance Recommended</span>
+                {% else %}
+                <span class="badge bg-success">Good Condition</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if equipment.description %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">Description</h6>
+        </div>
+        <div class="card-body">
+            <p>{{ equipment.description }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if equipment.warranty_information %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">Warranty Information</h6>
+        </div>
+        <div class="card-body">
+            <p>{{ equipment.warranty_information }}</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Maintenance Requests</h6>
+            <div>
+                <span class="badge bg-info">{{ equipment.maintenance_count }} Total</span>
+                <span class="badge bg-warning">{{ equipment.open_maintenance_count }} Open</span>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if equipment.requests %}
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Request #</th>
+                            <th>Subject</th>
+                            <th>Stage</th>
+                            <th>Type</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in equipment.requests %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('user_request_detail', id=req.id) }}" class="text-decoration-none">
+                                    {{ req.name }}
+                                </a>
+                            </td>
+                            <td>{{ req.subject }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if req.stage == 'repaired' else 'warning' if req.stage == 'in_progress' else 'info' if req.stage == 'new' else 'secondary' }}">
+                                    {{ req.stage.replace('_', ' ').title() }}
+                                </span>
+                            </td>
+                            <td>{{ req.request_type.title() }}</td>
+                            <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-3">
+                <i class="bi bi-inbox"></i>
+                <p class="mt-2 mb-0">No maintenance requests for this equipment</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('user_request_new') }}?equipment_id={{ equipment.id }}" class="btn btn-user-primary">
+            <i class="bi bi-plus-circle"></i> Create Maintenance Request for This Equipment
+        </a>
+    </div>
+</div>
+{% endblock %}
+

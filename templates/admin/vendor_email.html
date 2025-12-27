@@ -1,0 +1,65 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Send Email to Vendors{% endblock %}
+{% block page_subtitle %}Send product-related information to vendors{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="mb-0"><i class="bi bi-envelope"></i> Send Email to Vendors</h5>
+            </div>
+            <div class="admin-card-body">
+                <form method="POST" action="{{ url_for('admin_send_vendor_email') }}">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Select Vendors <span class="text-danger">*</span></label>
+                        <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            {% for vendor in vendors %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="vendor_ids" value="{{ vendor.id }}" id="vendor{{ vendor.id }}">
+                                <label class="form-check-label" for="vendor{{ vendor.id }}">
+                                    <strong>{{ vendor.full_name or vendor.username }}</strong> - {{ vendor.email }}
+                                    {% if vendor.company %}
+                                    <span class="text-muted">({{ vendor.company.name }})</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Select one or more vendors to send the email to</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label fw-semibold">Email Subject <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="subject" name="subject" required placeholder="e.g., Product Update - New Equipment Available">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="message" name="message" rows="8" required placeholder="Enter your message to vendors..."></textarea>
+                        <small class="text-muted">This message will be sent to all selected vendors</small>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-admin-primary">
+                            <i class="bi bi-send"></i> Send Email
+                        </button>
+                        <a href="{{ url_for('admin_vendors') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pre-select vendor if coming from vendor list
+    const urlParams = new URLSearchParams(window.location.search);
+    const vendorId = urlParams.get('vendor_id');
+    if (vendorId) {
+        document.getElementById('vendor' + vendorId).checked = true;
+    }
+</script>
+{% endblock %}
+

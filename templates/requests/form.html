@@ -1,0 +1,148 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}{{ 'Edit' if request_obj else 'New' }} Maintenance Request{% endblock %}
+{% block page_subtitle %}{{ 'Modify request details' if request_obj else 'Create a new maintenance request' }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject *</label>
+                        <input type="text" class="form-control" id="subject" name="subject" 
+                               value="{{ request_obj.subject if request_obj else '' }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="request_type" class="form-label">Request Type *</label>
+                        <select class="form-select" id="request_type" name="request_type" required>
+                            <option value="corrective" {{ 'selected' if not request_obj or request_obj.request_type == 'corrective' }}>Corrective (Breakdown)</option>
+                            <option value="preventive" {{ 'selected' if request_obj and request_obj.request_type == 'preventive' }}>Preventive (Routine Checkup)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="equipment_id" class="form-label">Equipment *</label>
+                        <select class="form-select" id="equipment_id" name="equipment_id" required onchange="autoFillEquipment()">
+                            <option value="">Select Equipment</option>
+                            {% for eq in equipment %}
+                            <option value="{{ eq.id }}" 
+                                    data-category="{{ eq.category_id }}"
+                                    data-team="{{ eq.team_id }}"
+                                    data-technician="{{ eq.technician_id }}"
+                                    data-work-center="{{ eq.work_center_id }}"
+                                    {{ 'selected' if request_obj and request_obj.equipment_id == eq.id }}>
+                                {{ eq.name }} - {{ eq.serial_number }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="team_id" class="form-label">Team *</label>
+                        <select class="form-select" id="team_id" name="team_id" required>
+                            <option value="">Select Team</option>
+                            {% for team in teams %}
+                            <option value="{{ team.id }}" {{ 'selected' if request_obj and request_obj.team_id == team.id }}>
+                                {{ team.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="maintenance_for_id" class="form-label">Maintenance For</label>
+                        <select class="form-select" id="maintenance_for_id" name="maintenance_for_id">
+                            <option value="">Select User</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}" {{ 'selected' if request_obj and request_obj.maintenance_for_id == user.id }}>
+                                {{ user.full_name or user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="work_center_id" class="form-label">Work Center</label>
+                        <select class="form-select" id="work_center_id" name="work_center_id">
+                            <option value="">Select Work Center</option>
+                            {% for wc in work_centers %}
+                            <option value="{{ wc.id }}" {{ 'selected' if request_obj and request_obj.work_center_id == wc.id }}>
+                                {{ wc.name }} {% if wc.code %}({{ wc.code }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="assigned_user_id" class="form-label">Assigned User</label>
+                        <select class="form-select" id="assigned_user_id" name="assigned_user_id">
+                            <option value="">Select User</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}" {{ 'selected' if request_obj and request_obj.assigned_user_id == user.id }}>
+                                {{ user.full_name or user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="scheduled_date" class="form-label">Scheduled Date</label>
+                        <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date"
+                               value="{{ request_obj.scheduled_date.strftime('%Y-%m-%dT%H:%M') if request_obj and request_obj.scheduled_date else '' }}">
+                    </div>
+                </div>
+            </div>
+            
+            {% if request_obj %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (Hours)</label>
+                        <input type="number" step="0.1" class="form-control" id="duration" name="duration"
+                               value="{{ request_obj.duration if request_obj.duration else '' }}">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{{ url_for('request_list') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<script>
+function autoFillEquipment() {
+    const select = document.getElementById('equipment_id');
+    const selected = select.options[select.selectedIndex];
+    
+    if (selected.value) {
+        document.getElementById('team_id').value = selected.dataset.team || '';
+        document.getElementById('assigned_user_id').value = selected.dataset.technician || '';
+        document.getElementById('work_center_id').value = selected.dataset.workCenter || '';
+    }
+}
+</script>
+{% endblock %}
+
+
+

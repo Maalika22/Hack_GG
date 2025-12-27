@@ -1,0 +1,132 @@
+{% extends "base_user.html" %}
+
+{% block title %}Worker Dashboard - GearGuard{% endblock %}
+
+{% block content %}
+<div class="user-card">
+    <h3 class="mb-4">My Work Dashboard</h3>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Pending</h5>
+                    <h2 class="text-warning">{{ stats.pending }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Accepted</h5>
+                    <h2 class="text-info">{{ stats.accepted }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">In Progress</h5>
+                    <h2 class="text-primary">{{ stats.in_progress }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Completed</h5>
+                    <h2 class="text-success">{{ stats.completed }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if pending_requests %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-white">
+            <h5 class="mb-0">Pending Requests (Require Your Response)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Request #</th>
+                            <th>Subject</th>
+                            <th>Equipment</th>
+                            <th>Allocated At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in pending_requests %}
+                        <tr>
+                            <td>{{ req.name }}</td>
+                            <td>{{ req.subject }}</td>
+                            <td>{{ req.equipment.name if req.equipment else '-' }}</td>
+                            <td>{{ req.allocated_at.strftime('%Y-%m-%d %H:%M') if req.allocated_at else '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('worker_request_detail', id=req.id) }}" class="btn btn-sm btn-primary">View & Respond</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Accepted Requests</h5>
+                </div>
+                <div class="card-body">
+                    {% if accepted_requests %}
+                    <ul class="list-group">
+                        {% for req in accepted_requests[:5] %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ req.name }}</strong><br>
+                                <small>{{ req.subject }}</small>
+                            </div>
+                            <a href="{{ url_for('worker_request_detail', id=req.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No accepted requests</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">In Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% if in_progress_requests %}
+                    <ul class="list-group">
+                        {% for req in in_progress_requests[:5] %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ req.name }}</strong><br>
+                                <small>{{ req.subject }}</small>
+                            </div>
+                            <a href="{{ url_for('worker_request_detail', id=req.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No in-progress requests</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
